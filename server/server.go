@@ -9,6 +9,8 @@ import (
 
 	gral "github.com/jamoreno22/lab2_dist/pkg/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type nameServer struct {
@@ -68,4 +70,9 @@ func (s *nameServer) WriteLog(wls gral.NameNode_WriteLogServer) error {
 			log.Fatal(err2)
 		}
 	}
+}
+
+func (s *nameServer) GetBookInfo(book *gral.Book) (*gral.Message, error) {
+
+	return nil, status.Errorf(codes.Unimplemented, "method GetBookInfo not implemented")
 }
