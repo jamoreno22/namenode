@@ -22,14 +22,19 @@ func main() {
 
 	//Tiene que ser un stream pero no se cómo hacerlo :v
 	//prop := gral.Proposal{Ip: "8000", Chunk: &gral.Chunk{Name: "Chunk1", Data: []byte("ABC€")}}
+	book := gral.Book{Name: "Libro1", Parts: 3}
 	proposals := []gral.Proposal{}
 	proposals = append(proposals, gral.Proposal{Ip: "8000", Chunk: &gral.Chunk{Name: "Chunk1", Data: []byte("ABC€")}})
 	proposals = append(proposals, gral.Proposal{Ip: "8001", Chunk: &gral.Chunk{Name: "Chunk2", Data: []byte("ABC2")}})
 
 	runWriteLog(client, proposals)
-	//aber, err := client.WriteLog(context.Background(), prop)
 
 	log.Println("fin")
+
+	resp, err := client.GetInfoBook(context.Background(), book)
+	if err != nil {
+		log.Printf("Did not connect: %s", err)
+	}
 
 }
 
@@ -43,14 +48,12 @@ func runWriteLog(nc gral.NameNodeClient, proposals []gral.Proposal) error {
 
 	for _, prop := range proposals {
 		if err := stream.Send(&prop); err != nil {
-			log.Println("error al enviar prop")
-			log.Fatalf("%v.Send() = %v", stream, err)
+			log.Println("Error al enviar prop")
 		}
-		log.Printf("aqui voy-- prop.ip: %v", prop.Ip)
 	}
 	reply, err := stream.CloseAndRecv()
 	if err != nil {
-		log.Printf("Error recepcion response: %v", err)
+		log.Printf("Error reception response: %v", err)
 	}
 	log.Printf("Route summary: %v", reply)
 	return nil
