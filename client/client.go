@@ -31,10 +31,11 @@ func main() {
 
 	log.Println("fin")
 
-	resp, err := client.GetInfoBook(context.Background(), book)
+	resp, err := client.GetBookInfo(context.Background(), &book)
 	if err != nil {
 		log.Printf("Did not connect: %s", err)
 	}
+	log.Printf("respuesta: %s", resp)
 
 }
 

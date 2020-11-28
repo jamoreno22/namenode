@@ -15,9 +15,9 @@ service NameNode {
 }
 
 message Book {
-    string name = 2;
-    int32 parts = 3;
-    repeated Chunk chunks =1;
+    string name = 1;
+    int32 parts = 2;
+    repeated Chunk chunks = 3;
 }
 
 message Chunk{
