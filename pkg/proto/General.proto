@@ -4,16 +4,6 @@ syntax = "proto3";
 
 package lab2;
 
-service DataNode {
-
-    rpc DistributeChunks(stream Proposal) returns (Message) {}
-    rpc UploadBook(stream Chunk) returns (Message) {}
-    rpc DownloadBook(Message) returns (stream Chunk) {}
-    //Distribuido
-    rpc SendProposal(stream Proposal) returns (Message) {}
-
-}
-
 service NameNode {
 
     rpc GetBookInfo(Book) returns (Message) {}
