@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-//option go_package= "github.com/jamoreno22/lab2_dist";
+//option go_package= "github.com/jamoreno22/namenode";
 
 package lab2;
 
@@ -16,6 +16,7 @@ service DataNode {
 
 service NameNode {
 
+    rpc GetBookInfo(Book) returns (Message) {}
     rpc WriteLog(stream Proposal) returns (Message) {}
     //Centralizado
     rpc SendProposal(stream Proposal) returns (stream Proposal) {}
@@ -24,6 +25,8 @@ service NameNode {
 }
 
 message Book {
+    string name = 2;
+    int32 parts = 3;
     repeated Chunk chunks =1;
 }
 

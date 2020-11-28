@@ -15,8 +15,6 @@ type nameServer struct {
 	gral.UnimplementedNameNodeServer
 }
 
-var path = "Log"
-
 func main() {
 
 	// create a listener on TCP port 8000
@@ -55,8 +53,7 @@ func (s *nameServer) WriteLog(wls gral.NameNode_WriteLogServer) error {
 	for {
 		prop, err := wls.Recv()
 		if err == io.EOF {
-			log.Printf("EOF ------------")
-			return (wls.SendAndClose(&gral.Message{Text: "Oh no... EOF"}))
+			return (wls.SendAndClose(&gral.Message{Text: "End of File"}))
 		}
 		if err != nil {
 			return err
