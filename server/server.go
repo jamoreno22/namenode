@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -9,6 +10,8 @@ import (
 
 	gral "github.com/jamoreno22/namenode/pkg/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type nameServer struct {
@@ -72,9 +75,8 @@ func (s *nameServer) WriteLog(wls gral.NameNode_WriteLogServer) error {
 	}
 }
 
-func (s *nameServer) GetBookInfo(book *gral.Book) (*gral.Message, error) {
+func (s *nameServer) GetBookInfo(ctx context.Context, book *gral.Book) (*gral.Message, error) {
 
 	infoBook = *book
-
-	return &gral.Message{Text: "Book saved"}, nil
+	return nil, status.Errorf(codes.Unimplemented, "method GetBookInfo not implemented")
 }

@@ -31,6 +31,7 @@ func main() {
 	runWriteLog(client, proposals)
 
 	log.Println(reflect.TypeOf(client))
+	client = gral.NewNameNodeClient(conn)
 
 	resp, err := client.GetBookInfo(context.Background(), &book)
 	if err != nil {
