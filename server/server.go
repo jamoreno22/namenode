@@ -16,6 +16,10 @@ type nameNodeServer struct {
 	name.UnimplementedNameNodeServer
 }
 
+type nameNodeSendProposalServer struct {
+	grpc.ServerStream
+}
+
 var infoBook = name.Book{}
 
 var receivedProposal []name.Proposal
@@ -28,7 +32,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	// create a server instance
-	ns := name.UnimplementedNameNodeServer{}         // create a gRPC server object
+	ns := nameNodeServer{}                           // create a gRPC server object
 	grpcNameServer := grpc.NewServer()               // attach the Ping service to the server
 	name.RegisterNameNodeServer(grpcNameServer, &ns) // start the server
 
@@ -40,7 +44,7 @@ func main() {
 
 // - - - - - - - - - - NameNode Server functions - - - - - - - - - - -
 
-// Writelog server side
+// Writelog server
 func (s *nameNodeServer) WriteLog(sP []name.Proposal, parts int32, nameBook string) error {
 	// create log
 	f, err := os.Create("data.txt")
@@ -109,17 +113,19 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-func (s *nameNodeServer) SendProposal(sps name.NameNode_SendProposalServer) error {
+func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) error {
 	for {
-		prop, err := sps.Recv()
+		prop, err := srv.Recv()
+
 		if err == io.EOF {
+			log.Printf("EOF")
 			props, err2 := generateproposal(receivedProposal)
 			if err2 != nil {
 				log.Printf("Oh no!: %v", err2)
 			}
 			s.WriteLog(props, int32(len(props)), "inserte nombre aqui")
 			for _, p := range props {
-				if err3 := sps.Send(&p); err3 != nil {
+				if err3 := srv.Send(&p); err3 != nil {
 					return err3
 				}
 			}

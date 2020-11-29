@@ -80,10 +80,13 @@ func runSendProposal(nc name.NameNodeClient, proposals []name.Proposal) error {
 		a = a + 1
 	}
 	for {
+		log.Println("ki voy")
+
 		in, err := stream.Recv()
 		if err == io.EOF {
 			// read done.
 			//DistributeChunks()
+			log.Printf("weno")
 			return nil
 		}
 		if err != nil {
