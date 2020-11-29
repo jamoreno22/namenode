@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"reflect"
 
 	gral "github.com/jamoreno22/namenode/pkg/proto"
 	"google.golang.org/grpc"
@@ -29,13 +30,13 @@ func main() {
 
 	runWriteLog(client, proposals)
 
-	log.Println("fin")
+	log.Println(reflect.TypeOf(client))
 
 	resp, err := client.GetBookInfo(context.Background(), &book)
 	if err != nil {
-		log.Printf("Did not connect: %s", err)
+		log.Fatalf("Did not connect: %s", err)
 	}
-	log.Printf("respuesta: %s", resp)
+	log.Println(resp)
 
 }
 

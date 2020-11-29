@@ -7,13 +7,9 @@ import (
 	"net"
 	"os"
 
-	gral "github.com/jamoreno22/lab2_dist/pkg/proto"
+	gral "github.com/jamoreno22/namenode/pkg/proto"
 	"google.golang.org/grpc"
 )
-
-type nameServer struct {
-	gral.UnimplementedNameNodeServer
-}
 
 var infoBook = gral.Book{}
 
@@ -25,7 +21,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	// create a server instance
-	ns := nameServer{}                               // create a gRPC server object
+	ns := gral.UnimplementedNameNodeServer{}         // create a gRPC server object
 	grpcNameServer := grpc.NewServer()               // attach the Ping service to the server
 	gral.RegisterNameNodeServer(grpcNameServer, &ns) // start the server
 
@@ -72,9 +68,9 @@ func (s *nameServer) WriteLog(wls gral.NameNode_WriteLogServer) error {
 	}
 }
 
-func (s *nameServer) GetBookInfo(book gral.Book) (gral.Message, error) {
+func (s *nameServer) GetBookInfo(book *gral.Book) (*gral.Message, error) {
 
-	infoBook = book
+	infoBook = *book
 
-	return gral.Message{Text: "Book saved"}, nil
+	return &gral.Message{Text: "Book saved"}, nil
 }
