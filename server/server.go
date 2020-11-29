@@ -8,17 +8,17 @@ import (
 	"os"
 	"time"
 
-	gral "github.com/jamoreno22/namenode/pkg/proto"
+	name "github.com/jamoreno22/namenode/pkg/proto"
 	"google.golang.org/grpc"
 )
 
 type nameNodeServer struct {
-	gral.UnimplementedNameNodeServer
+	name.UnimplementedNameNodeServer
 }
 
-var infoBook = gral.Book{}
+var infoBook = name.Book{}
 
-var receivedProposal []gral.Proposal
+var receivedProposal []name.Proposal
 
 func main() {
 
@@ -28,9 +28,9 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	// create a server instance
-	ns := gral.UnimplementedNameNodeServer{}         // create a gRPC server object
+	ns := name.UnimplementedNameNodeServer{}         // create a gRPC server object
 	grpcNameServer := grpc.NewServer()               // attach the Ping service to the server
-	gral.RegisterNameNodeServer(grpcNameServer, &ns) // start the server
+	name.RegisterNameNodeServer(grpcNameServer, &ns) // start the server
 
 	log.Println("NameServer running ...")
 	if err := grpcNameServer.Serve(namelis); err != nil {
@@ -41,11 +41,9 @@ func main() {
 // - - - - - - - - - - NameNode Server functions - - - - - - - - - - -
 
 // Writelog server side
-func (s *nameNodeServer) WriteLog(wls gral.NameNode_WriteLogServer) error {
-	log.Printf("Stream WriteLogServer")
+func (s *nameNodeServer) WriteLog(sP []name.Proposal, parts int32, nameBook string) error {
 	// create log
 	f, err := os.Create("data.txt")
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,26 +51,16 @@ func (s *nameNodeServer) WriteLog(wls gral.NameNode_WriteLogServer) error {
 	defer f.Close()
 
 	// saved Proposals array
-	sP := []gral.Proposal{}
 
-	for {
-		prop, err := wls.Recv()
-		if err == io.EOF {
-			return (wls.SendAndClose(&gral.Message{Text: "End of File"}))
-		}
-		if err != nil {
-			return err
-		}
-
-		sP = append(sP, *prop)
+	for _, prop := range sP {
 
 		// Aquí va el código para guardar el log (falta formato)
 		_, err2 := f.WriteString("ip " + prop.Ip)
-
 		if err2 != nil {
 			log.Fatal(err2)
 		}
 	}
+	return nil
 }
 
 /*func (s *nameServer) GetBookInfo(ctx context.Context, book *gral.Book) (*gral.Message, error) {
@@ -82,9 +70,9 @@ func (s *nameNodeServer) WriteLog(wls gral.NameNode_WriteLogServer) error {
 }*/
 
 //Si quieres algo bien hecho tienes que hacerlo tu mismo
-func generateproposal(props []gral.Proposal) ([]gral.Proposal, error) {
+func generateproposal(props []name.Proposal) ([]name.Proposal, error) {
 	ips := []string{"10.10.28.17:9000", "10.10.28.18:9000", "10.10.28.19:9000"}
-	var propResponse []gral.Proposal
+	var propResponse []name.Proposal
 	var gIps []string //ipes wenas
 	for _, ip := range ips {
 		if pingDataNode(ip) {
@@ -97,7 +85,7 @@ func generateproposal(props []gral.Proposal) ([]gral.Proposal, error) {
 
 	for _, prop := range props {
 		if !stringInSlice(prop.Ip, gIps) {
-			propResponse = append(propResponse, gral.Proposal{Ip: gIps[0], Chunk: prop.Chunk})
+			propResponse = append(propResponse, name.Proposal{Ip: gIps[0], Chunk: prop.Chunk})
 		}
 	}
 	return propResponse, nil
@@ -121,7 +109,7 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-func (s *nameNodeServer) SendProposal(sps gral.NameNode_SendProposalServer) error {
+func (s *nameNodeServer) SendProposal(sps name.NameNode_SendProposalServer) error {
 	for {
 		prop, err := sps.Recv()
 		if err == io.EOF {
@@ -129,7 +117,7 @@ func (s *nameNodeServer) SendProposal(sps gral.NameNode_SendProposalServer) erro
 			if err2 != nil {
 				log.Printf("Oh no!: %v", err2)
 			}
-			//s.WriteLog()
+			s.WriteLog(props, int32(len(props)), "inserte nombre aqui")
 			for _, p := range props {
 				if err3 := sps.Send(&p); err3 != nil {
 					return err3

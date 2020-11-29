@@ -2,15 +2,13 @@ syntax = "proto3";
 
 //option go_package= "github.com/jamoreno22/namenode";
 
-package lab2;
+package lab;
 
 service NameNode {
 
     rpc GetBookInfo(Book) returns (Message) {}
-    rpc WriteLog(stream Proposal) returns (Message) {}
     //Centralizado
     rpc SendProposal(stream Proposal) returns (stream Proposal) {}
-    rpc GenerateProposal(stream Proposal) returns (stream Proposal) {}
 
 }
 

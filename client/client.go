@@ -5,7 +5,7 @@ import (
 	"io"
 	"log"
 
-	gral "github.com/jamoreno22/namenode/pkg/proto"
+	name "github.com/jamoreno22/namenode/pkg/proto"
 	"google.golang.org/grpc"
 )
 
@@ -19,16 +19,15 @@ func main() {
 
 	defer conn.Close()
 
-	client := gral.NewNameNodeClient(conn)
+	client := name.NewNameNodeClient(conn)
 
 	//Tiene que ser un stream pero no se cómo hacerlo :v
 	//prop := gral.Proposal{Ip: "8000", Chunk: &gral.Chunk{Name: "Chunk1", Data: []byte("ABC€")}}
 	//book := gral.Book{Name: "Libro1", Parts: 3}
-	proposals := []gral.Proposal{}
-	proposals = append(proposals, gral.Proposal{Ip: "8000", Chunk: &gral.Chunk{Name: "Chunk1", Data: []byte("ABC€")}})
-	proposals = append(proposals, gral.Proposal{Ip: "8001", Chunk: &gral.Chunk{Name: "Chunk2", Data: []byte("ABC2")}})
+	proposals := []name.Proposal{}
+	proposals = append(proposals, name.Proposal{Ip: "8000", Chunk: &name.Chunk{Name: "Chunk1", Data: []byte("ABC€")}})
+	proposals = append(proposals, name.Proposal{Ip: "8001", Chunk: &name.Chunk{Name: "Chunk2", Data: []byte("ABC2")}})
 
-	runWriteLog(client, proposals)
 	runSendProposal(client, proposals)
 
 	//resp, err := client.GetBookInfo(context.Background(), &book)
@@ -38,6 +37,8 @@ func main() {
 	//log.Println(resp)
 
 }
+
+/*
 
 //enviar propuesta al servidor
 func runWriteLog(nc gral.NameNodeClient, proposals []gral.Proposal) error {
@@ -59,15 +60,19 @@ func runWriteLog(nc gral.NameNodeClient, proposals []gral.Proposal) error {
 	log.Printf("Route summary: %v", reply)
 	return nil
 }
+*/
 
-func runSendProposal(nc gral.NameNodeClient, proposals []gral.Proposal) error {
+func runSendProposal(nc name.NameNodeClient, proposals []name.Proposal) error {
 
 	stream, err := nc.SendProposal(context.Background())
 	if err != nil {
 		log.Println("Error de stream send proposal")
 	}
+
+	log.Println("ki voy")
 	a := 1
 	for _, prop := range proposals {
+
 		if err := stream.Send(&prop); err != nil {
 			log.Println("error al enviar chunk")
 			log.Fatalf("%v.Send(%d) = %v", stream, a, err)
