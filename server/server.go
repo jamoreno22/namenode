@@ -11,6 +11,10 @@ import (
 	"google.golang.org/grpc"
 )
 
+type nameServer struct {
+	gral.UnimplementedNameNodeServer
+}
+
 var infoBook = gral.Book{}
 
 func main() {
