@@ -14,8 +14,6 @@ import (
 
 	name "github.com/jamoreno22/namenode/pkg/proto"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type nameNodeServer struct {
@@ -117,7 +115,7 @@ func (s *nameNodeServer) GetChunkDistribution(req *name.Message, srv name.NameNo
 // GetBookInfo
 func (s *nameNodeServer) GetBookInfo(ctx context.Context, req *name.Book) (*name.Message, error) {
 	infoBook = *req
-	return nil, status.Errorf(codes.Unimplemented, "method GetBookInfo not implemented")
+	return &name.Message{Text: "holi"}, nil
 }
 
 // Writelog
