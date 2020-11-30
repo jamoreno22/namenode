@@ -53,7 +53,7 @@ func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) erro
 	log.Printf("Llegó a send Proposal")
 	for {
 		prop, err := srv.Recv()
-		log.Printf("Recibiendo proposals")
+		log.Printf("Recibiendo proposals, error: %v", err)
 		if err == io.EOF {
 			log.Printf("EOF")
 
