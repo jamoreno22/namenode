@@ -57,11 +57,12 @@ func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) erro
 			log.Printf("EOF")
 
 			// Agregar la función para chequear la propuesta para la distribucion centralizada
-
+			log.Printf("recibió la propuesta")
 			props, err2 := generateproposal(receivedProposal)
 			if err2 != nil {
 				log.Printf("Oh no!: %v", err2)
 			}
+			log.Printf("propuesta generada, se imprime")
 			s.WriteLog(props, len(props), "inserte nombre aqui")
 			for _, p := range props {
 				if err3 := srv.Send(&p); err3 != nil {
