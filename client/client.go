@@ -12,7 +12,7 @@ import (
 func main() {
 	var conn *grpc.ClientConn
 
-	conn, err := grpc.Dial(":8000", grpc.WithInsecure())
+	conn, err := grpc.Dial("10.10.28.20:9000", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Did not connect: %s", err)
 	}
@@ -30,37 +30,35 @@ func main() {
 
 	runSendProposal(client, proposals)
 
-	//resp, err := client.GetBookInfo(context.Background(), &book)
-	//if err != nil {
-	//	log.Fatalf("Did not connect: %s", err)
-	//}
-	//log.Println(resp)
+	bookName := "Mujercitas-Alcott_Louisa_May.pdf"
+
+	runGetChunkDistribution(client, &name.Message{Text: bookName})
+
+	resp, err := client.GetBookInfo(context.Background(), &name.Book{Name: bookName, Parts: 3})
+	if err != nil {
+		log.Fatalf("Did not connect: %s", err)
+	}
+	log.Println(resp)
 
 }
 
-/*
-
-//enviar propuesta al servidor
-func runWriteLog(nc gral.NameNodeClient, proposals []gral.Proposal) error {
-	log.Println("Inicio de stream writeLog")
-	stream, err := nc.WriteLog(context.Background())
+func runGetChunkDistribution(nc name.NameNodeClient, bookName *name.Message) ([]name.Proposal, error) {
+	stream, err := nc.GetChunkDistribution(context.Background(), bookName)
 	if err != nil {
-		log.Printf("Error de stream writeLog: %v", err)
+		log.Printf("%v", err)
 	}
-
-	for _, prop := range proposals {
-		if err := stream.Send(&prop); err != nil {
-			log.Println("Error al enviar prop")
+	proposals := []name.Proposal{}
+	for {
+		feature, err := stream.Recv()
+		if err == io.EOF {
+			return proposals, nil
 		}
+		if err != nil {
+			log.Fatalf("%v.ListFeatures(_) = _, %v", nc, err)
+		}
+		proposals = append(proposals, *feature)
 	}
-	reply, err := stream.CloseAndRecv()
-	if err != nil {
-		log.Printf("Error reception response: %v", err)
-	}
-	log.Printf("Route summary: %v", reply)
-	return nil
 }
-*/
 
 func runSendProposal(nc name.NameNodeClient, proposals []name.Proposal) error {
 

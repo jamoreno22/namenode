@@ -9,7 +9,7 @@ service NameNode {
     rpc GetBookInfo(Book) returns (Message) {}
     //Centralizado
     rpc SendProposal(stream Proposal) returns (stream Proposal) {}
-    rpc GetChunkDistribution(Message) returns (File) {}
+    rpc GetChunkDistribution(Message) returns (stream Proposal) {}
 }
 
 message File{

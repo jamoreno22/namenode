@@ -1,15 +1,21 @@
 package main
 
 import (
+	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"log"
 	"net"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	name "github.com/jamoreno22/namenode/pkg/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type nameNodeServer struct {
@@ -44,10 +50,45 @@ func main() {
 
 // - - - - - - - - - - NameNode Server functions - - - - - - - - - - -
 
+// GetChunkDistribution
+func (s *nameNodeServer) GetChunkDistribution(req *name.Message, srv name.NameNode_GetChunkDistributionServer) error {
+	file, err := os.Open("Log.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	numberOfLines := 0
+	proposals := []name.Proposal{}
+
+	for scanner.Scan() {
+		if numberOfLines > 0 {
+			line := strings.Split(scanner.Text(), " ")
+			proposals = append(proposals, name.Proposal{Ip: line[1], Chunk: &name.Chunk{Name: line[0]}})
+		}
+		if scanner.Text()[:len(req.GetText())-1] == req.GetText() {
+			numberOfLines, err = strconv.Atoi(scanner.Text()[len(scanner.Text()) : len(scanner.Text())-1])
+			if err != nil {
+				log.Printf("%v", err)
+			}
+		}
+
+	}
+
+	//stream
+	for _, prop := range proposals {
+		if err := srv.Send(&prop); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Writelog server
-func (s *nameNodeServer) WriteLog(sP []name.Proposal, parts int32, nameBook string) error {
+func (s *nameNodeServer) WriteLog(sP []name.Proposal, parts int, nameBook string) error {
 	// create log
-	f, err := os.Create("data.txt")
+	f, err := os.Create("Log.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -56,10 +97,10 @@ func (s *nameNodeServer) WriteLog(sP []name.Proposal, parts int32, nameBook stri
 
 	// saved Proposals array
 
+	// Crear Log
+	f.WriteString(nameBook + " " + strconv.Itoa(parts) + "\n")
 	for _, prop := range sP {
-
-		// Aquí va el código para guardar el log (falta formato)
-		_, err2 := f.WriteString("ip " + prop.Ip)
+		_, err2 := f.WriteString(prop.Chunk.Name + " " + prop.Ip + "\n")
 		if err2 != nil {
 			log.Fatal(err2)
 		}
@@ -67,11 +108,10 @@ func (s *nameNodeServer) WriteLog(sP []name.Proposal, parts int32, nameBook stri
 	return nil
 }
 
-/*func (s *nameServer) GetBookInfo(ctx context.Context, book *gral.Book) (*gral.Message, error) {
-
-	infoBook = *book
+func (s *nameNodeServer) GetBookInfo(ctx context.Context, req *name.Book) (*name.Message, error) {
+	infoBook = *req
 	return nil, status.Errorf(codes.Unimplemented, "method GetBookInfo not implemented")
-}*/
+}
 
 //Si quieres algo bien hecho tienes que hacerlo tu mismo
 func generateproposal(props []name.Proposal) ([]name.Proposal, error) {
@@ -123,7 +163,7 @@ func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) erro
 			if err2 != nil {
 				log.Printf("Oh no!: %v", err2)
 			}
-			s.WriteLog(props, int32(len(props)), "inserte nombre aqui")
+			s.WriteLog(props, len(props), "inserte nombre aqui")
 			for _, p := range props {
 				if err3 := srv.Send(&p); err3 != nil {
 					return err3
