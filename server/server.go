@@ -33,7 +33,7 @@ var receivedProposal []name.Proposal
 func main() {
 
 	// create a listener on TCP port 8000
-	namelis, err := net.Listen("tcp", fmt.Sprintf(":%d", 8000))
+	namelis, err := net.Listen("tcp", "10.10.28.20:9000")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -49,6 +49,35 @@ func main() {
 }
 
 // - - - - - - - - - - NameNode Server functions - - - - - - - - - - -
+
+// SendProposal
+func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) error {
+	for {
+		prop, err := srv.Recv()
+
+		if err == io.EOF {
+			log.Printf("EOF")
+
+			// Agregar la función para chequear la propuesta para la distribucion centralizada
+
+			props, err2 := generateproposal(receivedProposal)
+			if err2 != nil {
+				log.Printf("Oh no!: %v", err2)
+			}
+			s.WriteLog(props, len(props), "inserte nombre aqui")
+			for _, p := range props {
+				if err3 := srv.Send(&p); err3 != nil {
+					return err3
+				}
+			}
+
+		}
+		if err != nil {
+			return err
+		}
+		receivedProposal = append(receivedProposal, *prop)
+	}
+}
 
 // GetChunkDistribution
 func (s *nameNodeServer) GetChunkDistribution(req *name.Message, srv name.NameNode_GetChunkDistributionServer) error {
@@ -85,7 +114,13 @@ func (s *nameNodeServer) GetChunkDistribution(req *name.Message, srv name.NameNo
 	return nil
 }
 
-// Writelog server
+// GetBookInfo
+func (s *nameNodeServer) GetBookInfo(ctx context.Context, req *name.Book) (*name.Message, error) {
+	infoBook = *req
+	return nil, status.Errorf(codes.Unimplemented, "method GetBookInfo not implemented")
+}
+
+// Writelog
 func (s *nameNodeServer) WriteLog(sP []name.Proposal, parts int, nameBook string) error {
 	// create log
 	f, err := os.Create("Log.txt")
@@ -108,12 +143,6 @@ func (s *nameNodeServer) WriteLog(sP []name.Proposal, parts int, nameBook string
 	return nil
 }
 
-func (s *nameNodeServer) GetBookInfo(ctx context.Context, req *name.Book) (*name.Message, error) {
-	infoBook = *req
-	return nil, status.Errorf(codes.Unimplemented, "method GetBookInfo not implemented")
-}
-
-//Si quieres algo bien hecho tienes que hacerlo tu mismo
 func generateproposal(props []name.Proposal) ([]name.Proposal, error) {
 	ips := []string{"10.10.28.17:9000", "10.10.28.18:9000", "10.10.28.19:9000"}
 	var propResponse []name.Proposal
@@ -151,28 +180,4 @@ func stringInSlice(a string, list []string) bool {
 		}
 	}
 	return false
-}
-
-func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) error {
-	for {
-		prop, err := srv.Recv()
-
-		if err == io.EOF {
-			log.Printf("EOF")
-			props, err2 := generateproposal(receivedProposal)
-			if err2 != nil {
-				log.Printf("Oh no!: %v", err2)
-			}
-			s.WriteLog(props, len(props), "inserte nombre aqui")
-			for _, p := range props {
-				if err3 := srv.Send(&p); err3 != nil {
-					return err3
-				}
-			}
-		}
-		if err != nil {
-			return err
-		}
-		receivedProposal = append(receivedProposal, *prop)
-	}
 }

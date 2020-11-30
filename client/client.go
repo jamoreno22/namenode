@@ -21,9 +21,6 @@ func main() {
 
 	client := name.NewNameNodeClient(conn)
 
-	//Tiene que ser un stream pero no se cómo hacerlo :v
-	//prop := gral.Proposal{Ip: "8000", Chunk: &gral.Chunk{Name: "Chunk1", Data: []byte("ABC€")}}
-	//book := gral.Book{Name: "Libro1", Parts: 3}
 	proposals := []name.Proposal{}
 	proposals = append(proposals, name.Proposal{Ip: "8000", Chunk: &name.Chunk{Name: "Chunk1", Data: []byte("ABC€")}})
 	proposals = append(proposals, name.Proposal{Ip: "8001", Chunk: &name.Chunk{Name: "Chunk2", Data: []byte("ABC2")}})
