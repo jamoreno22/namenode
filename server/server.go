@@ -122,6 +122,7 @@ func (s *nameNodeServer) GetBookInfo(ctx context.Context, req *name.Book) (*name
 
 // Writelog
 func (s *nameNodeServer) WriteLog(sP []name.Proposal, parts int, nameBook string) error {
+	log.Printf("WriteLog iniciated")
 	// create log
 	f, err := os.Create("Log.txt")
 	if err != nil {
