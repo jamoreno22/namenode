@@ -51,21 +51,17 @@ func main() {
 
 // SendProposal
 func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) error {
-	log.Printf("Llegó a send Proposal")
 	for {
 		prop, err := srv.Recv()
-		log.Printf("Recibiendo proposals, error: %v", err)
 		if err == io.EOF {
 			log.Printf("EOF")
 
 			// Agregar la función para chequear la propuesta para la distribucion centralizada
-			log.Printf("recibió la propuesta")
 			props, err2 := generateproposal(receivedProposal)
 			if err2 != nil {
 				log.Printf("Oh no!: %v", err2)
 			}
-			log.Printf("propuesta generada, se imprime")
-			s.WriteLog(props, len(props), "inserte nombre aqui")
+			s.WriteLog(props, len(props), infoBook.Name)
 			for _, p := range props {
 				if err3 := srv.Send(&p); err3 != nil {
 					log.Printf("%v", err3)
@@ -124,14 +120,11 @@ func (s *nameNodeServer) GetBookInfo(ctx context.Context, req *name.Book) (*name
 
 // Writelog
 func (s *nameNodeServer) WriteLog(sP []name.Proposal, parts int, nameBook string) error {
-	log.Printf("WriteLog iniciated")
 	// create log
 	f, err := os.Create("Log.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	log.Printf("print post log creation")
 	// saved Proposals array
 
 	// Crear Log
