@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"net"
 	"os"
 	"strconv"
@@ -160,7 +161,7 @@ func generateproposal(props []name.Proposal) ([]name.Proposal, error) {
 
 	for _, prop := range props {
 		if !stringInSlice(prop.Ip, gIps) {
-			propResponse = append(propResponse, name.Proposal{Ip: gIps[0], Chunk: prop.Chunk})
+			propResponse = append(propResponse, name.Proposal{Ip: gIps[rand.Intn(len(gIps))], Chunk: prop.Chunk})
 		} else {
 			propResponse = append(propResponse, prop)
 		}
