@@ -129,8 +129,7 @@ func (s *nameNodeServer) WriteLog(sP []name.Proposal, parts int, nameBook string
 		log.Fatal(err)
 	}
 
-	defer f.Close()
-
+	log.Printf("print post log creation")
 	// saved Proposals array
 
 	// Crear Log
@@ -141,6 +140,8 @@ func (s *nameNodeServer) WriteLog(sP []name.Proposal, parts int, nameBook string
 			log.Fatal(err2)
 		}
 	}
+
+	defer f.Close()
 	return nil
 }
 
