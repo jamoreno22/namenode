@@ -54,8 +54,6 @@ func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) erro
 	for {
 		prop, err := srv.Recv()
 		if err == io.EOF {
-			log.Printf("EOF")
-
 			// Agregar la función para chequear la propuesta para la distribucion centralizada
 			props, err2 := generateproposal(receivedProposal)
 			if err2 != nil {
@@ -66,7 +64,6 @@ func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) erro
 				if err3 := srv.Send(&p); err3 != nil {
 					log.Printf("%v", err3)
 				}
-				log.Printf("Enviando propuesta al datanode")
 			}
 			return io.EOF
 		}
