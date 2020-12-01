@@ -161,6 +161,8 @@ func generateproposal(props []name.Proposal) ([]name.Proposal, error) {
 	for _, prop := range props {
 		if !stringInSlice(prop.Ip, gIps) {
 			propResponse = append(propResponse, name.Proposal{Ip: gIps[0], Chunk: prop.Chunk})
+		} else {
+			propResponse = append(propResponse, prop)
 		}
 	}
 	return propResponse, nil
