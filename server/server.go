@@ -69,6 +69,8 @@ func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) erro
 			for _, p := range props {
 				if err3 := srv.Send(&p); err3 != nil {
 					log.Printf("%v", err3)
+				} else if err3 == io.EOF {
+					return io.EOF
 				}
 			}
 
