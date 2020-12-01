@@ -68,7 +68,7 @@ func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) erro
 			s.WriteLog(props, len(props), "inserte nombre aqui")
 			for _, p := range props {
 				if err3 := srv.Send(&p); err3 != nil {
-					return err3
+					log.Printf("%v", err3)
 				}
 			}
 
