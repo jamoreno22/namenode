@@ -70,6 +70,7 @@ func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) erro
 				if err3 := srv.Send(&p); err3 != nil {
 					log.Printf("%v", err3)
 				}
+				log.Printf("Enviando propuesta al datanode")
 			}
 			return io.EOF
 
