@@ -164,36 +164,6 @@ func (s *nameNodeServer) GetAvaibleBooks(ctx context.Context, req *name.Message)
 	return &msg, nil
 }
 
-/*
-GetLocations : Recibe un mensaje y retorna un stream de proposals solo con el nombre del chunk
-para buscarlo dentro del datanode y retornarlo al cliente
-
-func (s *NameNodeServer) GetLocations(req *name.Message) error {
-
-
-	//Se lee el Log.txt para extraer las ubicaciones mientras va creando los proposals a
-	//retornar pero sin el chunk.data
-
-
-	var finalProps []name.Proposal
-
-	for _, prop := range distributedChunks{
-		var chunk Chunk
-		chunk.Name = prop.Chunk.Name
-		chunk.Data = rescueChunkData(prop.Ip, prop.Chunk.Name)
-		finalProps.append(finalProps, name.Proposal{Ip:prop.Ip, Chunk: chunk})
-	}
-
-	for _, prop := range finalProps {
-		if err := srv.Send(&prop); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-*/
-
 func generateproposal(props []name.Proposal) ([]name.Proposal, error) {
 	ips := []string{"10.10.28.17:9000", "10.10.28.18:9000", "10.10.28.19:9000"}
 	var propResponse []name.Proposal
@@ -256,20 +226,3 @@ func printBooks() string {
 
 	return string(data)
 }
-
-/*
-func rescueChunkData(ip, cName) name.Chunk.Data {
-	conn, err := grpc.Dial(ip, grpc.WithInsecure())
-	if err != nil {
-		fmt.Printf("DataNode at : %s disconnected : %v", ip, err)
-	}
-
-	dnClient := name.NewNameNodeClient(conn)
-
-	chunkData, _ := ioutil.ReadFile(cName)
-
-	defer conn.Close()
-
-	return chunkData
-}
-*/
