@@ -94,19 +94,20 @@ func (s *nameNodeServer) GetChunkDistribution(req *name.Message, srv name.NameNo
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	numberOfLines := 0
 	proposals := []name.Proposal{}
+	partsNumber := 0
+	flag := 0
 
 	for scanner.Scan() {
-		if numberOfLines > 0 {
+		if flag > 0 {
 			line := strings.Split(scanner.Text(), " ")
 			proposals = append(proposals, name.Proposal{Ip: line[1], Chunk: &name.Chunk{Name: line[0]}})
+			flag = flag - 1
 		}
 		if scanner.Text()[:len(req.GetText())-1] == req.GetText() {
-			numberOfLines, err = strconv.Atoi(scanner.Text()[len(scanner.Text()) : len(scanner.Text())-1])
-			if err != nil {
-				log.Printf("%v", err)
-			}
+			line := strings.Split(scanner.Text(), " ")
+			partsNumber, _ = strconv.Atoi(line[1][15:])
+			flag = partsNumber
 		}
 
 	}
