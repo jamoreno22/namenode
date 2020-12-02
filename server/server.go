@@ -57,7 +57,7 @@ func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) erro
 		prop, err := srv.Recv()
 		if err == io.EOF {
 			// Agregar la función para chequear la propuesta para la distribucion centralizada
-			if distribution != "0" {
+			if distribution == "0" {
 				props, err2 := generateproposal(receivedProposal)
 				if err2 != nil {
 					log.Printf("Oh no!: %v", err2)
