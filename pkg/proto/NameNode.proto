@@ -6,6 +6,9 @@ package lab;
 
 service NameNode {
 
+    rpc GetAvaibleBooks(Message)returns(Message){}
+    rpc GetLocations(Message)returns(stream Proposal){}
+
     rpc GetDistribution(Message)returns(Message){}
     rpc GetBookInfo(Book) returns (Message) {}
     //Centralizado
