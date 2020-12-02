@@ -46,14 +46,14 @@ func runGetChunkDistribution(nc name.NameNodeClient, bookName *name.Message) ([]
 	}
 	proposals := []name.Proposal{}
 	for {
-		feature, err := stream.Recv()
+		prop, err := stream.Recv()
 		if err == io.EOF {
 			return proposals, nil
 		}
 		if err != nil {
-			log.Fatalf("%v.ListFeatures(_) = _, %v", nc, err)
+			log.Fatalf("%v.ListProposals(_) = _, %v", nc, err)
 		}
-		proposals = append(proposals, *feature)
+		proposals = append(proposals, *prop)
 	}
 }
 
@@ -63,30 +63,24 @@ func runSendProposal(nc name.NameNodeClient, proposals []name.Proposal) error {
 	if err != nil {
 		log.Println("Error de stream send proposal")
 	}
-
-	log.Println("ki voy")
 	a := 1
 	for _, prop := range proposals {
 
 		if err := stream.Send(&prop); err != nil {
-			log.Println("error al enviar chunk")
+			log.Println("Error al enviar chunk")
 			log.Fatalf("%v.Send(%d) = %v", stream, a, err)
 		}
 		a = a + 1
 	}
 	for {
-		log.Println("ki voy")
-
 		in, err := stream.Recv()
 		if err == io.EOF {
-			// read done.
-			//DistributeChunks()
-			log.Printf("weno")
-			return nil
+			break
 		}
 		if err != nil {
 			log.Fatalf("Failed to receive a proposal : %v", err)
 		}
 		log.Printf("Got a proposal ip :%s ", in.Ip)
 	}
+	return nil
 }

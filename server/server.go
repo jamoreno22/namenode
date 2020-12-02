@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"net"
@@ -85,7 +86,7 @@ func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) erro
 	}
 }
 
-// GetChunkDistribution
+// GetChunkDistribution : awa
 func (s *nameNodeServer) GetChunkDistribution(req *name.Message, srv name.NameNode_GetChunkDistributionServer) error {
 	file, err := os.Open("Log.txt")
 	if err != nil {
@@ -155,6 +156,58 @@ func (s *nameNodeServer) WriteLog(sP []name.Proposal, parts int, nameBook string
 	return nil
 }
 
+/*GetAvaibleBooks : Recibe una petición desde el cliente para que se le sea devuelto un mensaje
+con los nombres de los libros guardados en los datanodes.*/
+func (s *NameNodeServer) GetAvaibleBooks(ctx context.Context, req *Message) (*Message, error) {
+	msg := name.Message{Text: printBooks()}
+	return msg, nil
+}
+
+/*GetLocations : Recibe un mensaje y retorna un stream de proposals solo con el nombre del chunk
+para buscarlo dentro del datanode y retornarlo al cliente*/
+func (s *NameNodeServer) GetLocations(req *Message, srv NameNode_GetLocationsServer) error {
+
+	var nameConn *grpc.ClientConnection
+	//Establecemos una ip solamente para el cliente o la buscamos?
+	nameConn, err := grpc.Dial(clientIp, grpc.WithInsecure(), grpc.WithKeepaliveParams(keepalive.ClientParameters{})
+	if err != nil {
+		log.Fatalf("Did not connect : %v", err)
+	}
+
+	nameClient := name.NewNameNodeClient(nameConn)
+	chunks, err := nameClient.GetChunkDistribution(context.Background(), req)
+	var distributedChunks []name.Proposal
+
+	for {
+		chunk, err := chunks.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalf("%v", err)
+		}
+		distributedChunks = append(distributedChunks, *chunk)
+	}
+	log.Printf("Distribucion de chunks creada")
+
+	var finalProps []name.Proposal
+
+	for _, prop := range distributedChunks{
+		var chunk Chunk
+		chunk.Name = prop.Chunk.Name
+		chunk.Data = rescueChunkData(prop.Ip, prop.Chunk.Name)
+		finalProps.append(finalProps, name.Proposal{Ip:prop.Ip, Chunk: chunk})
+	}
+
+	for _, prop := range finalProps {
+		if err := srv.Send(&prop); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func generateproposal(props []name.Proposal) ([]name.Proposal, error) {
 	ips := []string{"10.10.28.17:9000", "10.10.28.18:9000", "10.10.28.19:9000"}
 	var propResponse []name.Proposal
@@ -194,4 +247,41 @@ func stringInSlice(a string, list []string) bool {
 		}
 	}
 	return false
+}
+
+func listOfBooks(name string) error {
+	f, err := os.Create("List.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	f.WriteString(name + "\n")
+
+	defer f.Close()
+
+	return nil
+}
+
+func printBooks() string {
+
+	data, err := ioutil.ReadFile("List.txt")
+	if err != nil {
+		fmt.Println("File reading error", err)
+	}
+
+	return string(data)
+}
+
+func rescueChunkData(ip, cName) name.Chunk.Data {
+	conn, err := grpc.Dial(ip, grpc.WithInsecure())
+	if err != nil {
+		fmt.Printf("DataNode at : %s disconnected : %v", ip, err)
+	}
+
+	dnClient := name.NewNameNodeClient(conn)
+
+	chunkData, _ := ioutil.ReadFile(cName)
+
+	defer conn.Close()
+
+	return chunkData
 }
