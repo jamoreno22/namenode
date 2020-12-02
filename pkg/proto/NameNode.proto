@@ -6,6 +6,7 @@ package lab;
 
 service NameNode {
 
+    rpc GetDistribution(Message)returns(Message){}
     rpc GetBookInfo(Book) returns (Message) {}
     //Centralizado
     rpc SendProposal(stream Proposal) returns (stream Proposal) {}

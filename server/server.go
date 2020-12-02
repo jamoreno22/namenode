@@ -29,6 +29,8 @@ var infoBook = name.Book{}
 
 var receivedProposal []name.Proposal
 
+var distribution string
+
 func main() {
 
 	// create a listener on TCP port 8000
@@ -55,14 +57,23 @@ func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) erro
 		prop, err := srv.Recv()
 		if err == io.EOF {
 			// Agregar la función para chequear la propuesta para la distribucion centralizada
-			props, err2 := generateproposal(receivedProposal)
-			if err2 != nil {
-				log.Printf("Oh no!: %v", err2)
-			}
-			s.WriteLog(props, len(props), infoBook.Name)
-			for _, p := range props {
-				if err3 := srv.Send(&p); err3 != nil {
-					log.Printf("%v", err3)
+			if distribution != "0" {
+				props, err2 := generateproposal(receivedProposal)
+				if err2 != nil {
+					log.Printf("Oh no!: %v", err2)
+				}
+				s.WriteLog(props, len(props), infoBook.Name)
+				for _, p := range props {
+					if err3 := srv.Send(&p); err3 != nil {
+						log.Printf("%v", err3)
+					}
+				}
+			} else {
+				s.WriteLog(receivedProposal, len(receivedProposal), infoBook.Name)
+				for _, p := range receivedProposal {
+					if err3 := srv.Send(&p); err3 != nil {
+						log.Printf("%v", err3)
+					}
 				}
 			}
 			return io.EOF
@@ -107,6 +118,12 @@ func (s *nameNodeServer) GetChunkDistribution(req *name.Message, srv name.NameNo
 		}
 	}
 	return nil
+}
+
+//Get Distribution type
+func (s *nameNodeServer) GetDistribution(ctx context.Context, req *name.Message) (*name.Message, error) {
+	distribution = req.Text
+	return &name.Message{Text: "Received"}, nil
 }
 
 // GetBookInfo
