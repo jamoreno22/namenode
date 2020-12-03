@@ -5,15 +5,15 @@ Ingrese a las máquinas virtuales, DataNode_1: 10.10.28.17:9000, DataNode_2: 10.
 
 Se deben activar todos los servidores en cada máquina virtual, para ello, en una terminal de las máquinas virtuales correspondientes al DataNode_1, DataNode_2 y DataNode_3 se debe ingresar el siguiente comando:
 
-makefile server datanode
+make dataNode
 
 Para la máquina virtual del NameNode se debe ingresar:
 
-makefile server namenode
+make nameNode
 
 Finalmente, para probar el programa debemos utilizar otra terminal donde se encuentra la máquina virtual del DataNode_1 debemos ingresar lo siguiente:
 
-makefile cliente datanode
+make cliente
 
 Para cargar un libro se debe escoger la opción "0", luego, debemos decidir qué tipo de distribución utilizaremos para guardar los libros en los diferentes DataNodes, la opción 0 es para distribución centralizada y la opción "1" es para la opción distribuida. 
 Finalmente, para que la carga del libro se realice correctamente se debe ingresar el directorio que contiene al libro, por ejemplo, si se tiene un libro llamado "Hola_soy_un_libro.pdf" en el directorio "/books" el input requerido sería "/books/Hola_soy_un_libro.pdf". Después de esto, se debe ingresar el nombre del libro, sin la extensión. Siguiendo nuestro ejemplo se debería ingresar "Hola_soy_un_libro". Así, se registra en un archivo diferente al log del NameNode, qué libros han sido cargados y pueden ser buscados al momento de descargar.
