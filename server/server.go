@@ -213,7 +213,7 @@ func stringInSlice(a string, list []string) bool {
 }
 
 func listOfBooks(name string) error {
-	f, err := os.OpenFile("List.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	f, err := os.OpenFile("List.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		log.Fatal(err)
 	}
