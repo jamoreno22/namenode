@@ -52,32 +52,39 @@ func main() {
 
 // - - - - - - - - - - NameNode Server functions - - - - - - - - - - -
 
+// sendproposaldist
+func (s *nameNodeServer) SendProposalDist(srv name.NameNode_SendProposalDistServer) error {
+	for {
+		prop, err := srv.Recv()
+		if err == io.EOF {
+			s.WriteLog(receivedProposal, len(receivedProposal), infoBook.Name)
+			return srv.SendAndClose(&name.Message{Text: "Recibido"})
+		}
+		if err != nil {
+			return err
+		}
+		receivedProposal = append(receivedProposal, *prop)
+	}
+}
+
 // SendProposal
 func (s *nameNodeServer) SendProposal(srv name.NameNode_SendProposalServer) error {
+
 	for {
 		prop, err := srv.Recv()
 		if err == io.EOF {
 			// Agregar la función para chequear la propuesta para la distribucion centralizada
-			if distribution == "0" {
-				props, err2 := generateproposal(receivedProposal)
-				if err2 != nil {
-					log.Printf("Oh no!: %v", err2)
-				}
-				s.WriteLog(props, len(props), infoBook.Name)
-				for _, p := range props {
-					if err3 := srv.Send(&p); err3 != nil {
-						log.Printf("%v", err3)
-					}
-				}
-			} else {
-				s.WriteLog(receivedProposal, len(receivedProposal), infoBook.Name)
-				for _, p := range receivedProposal {
-					if err3 := srv.Send(&p); err3 != nil {
-						log.Printf("%v", err3)
-					}
+			props, err2 := generateproposal(receivedProposal)
+			if err2 != nil {
+				log.Printf("Oh no!: %v", err2)
+			}
+			s.WriteLog(props, len(props), infoBook.Name)
+			for _, p := range props {
+				if err3 := srv.Send(&p); err3 != nil {
+					log.Printf("%v", err3)
 				}
 			}
-			return io.EOF
+			return err
 		}
 		if err != nil {
 			return err
@@ -206,7 +213,7 @@ func stringInSlice(a string, list []string) bool {
 }
 
 func listOfBooks(name string) error {
-	f, err := os.OpenFile("List.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	f, err := os.OpenFile("List.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		log.Fatal(err)
 	}
